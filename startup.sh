@@ -2,49 +2,47 @@
 
 cat << EOF > /etc/v2ray/config.json
 {
-    "policy": {
-        "levels": {
-            "0": {
-                "handshake": 5,
-                "connIdle": 300,
-                "uplinkOnly": 2,
-                "downlinkOnly": 5,
-                "statsUserUplink": false,
-                "statsUserDownlink": false,
-                "bufferSize": 10240
-            }
-        },
-        "system": {
-            "statsInboundUplink": false,
-            "statsInboundDownlink": false,
-            "statsOutboundUplink": false,
-            "statsOutboundDownlink": false
+  "inbounds": [{
+    "port": $PORT,
+    "protocol": "vmess",
+    "settings": {
+      "clients": [
+        {
+          "id": "$UUID",
+          "level": 1,
+          "alterId": 1
         }
+      ]
     },
-    "inbounds": [
-        {
-            "port": $PORT,
-            "protocol": "vmess",
-            "settings": {
-                "clients": [
-                    {
-                        "id": "$UUID",
-                        "level": 0
-                    }
-                ],
-                 "decryption": "none"
-            },
-            "streamSettings": {
-                "network": "ws",
-                "security": "none"
-            }
-        }
-    ],
-    "outbounds": [
-        {
-            "protocol": "freedom"
-        }
+    "streamSettings": {
+      "network": "ws",
+      "wsSettings": {
+        "path": "/wss"
+      }
+    },
+    "sockopt": {
+       "mark": 0,
+       "tcpFastOpen": true,
+       "tproxy": "off"
+    } 
+  }],
+  "outbounds": [{
+    "protocol": "freedom",
+    "settings": {}
+  },{
+    "protocol": "blackhole",
+    "settings": {},
+    "tag": "blocked"
+  }],
+  "routing": {
+    "rules": [
+      {
+        "type": "field",
+        "ip": ["geoip:private"],
+        "outboundTag": "blocked"
+      }
     ]
+  }
 }
 EOF
 
